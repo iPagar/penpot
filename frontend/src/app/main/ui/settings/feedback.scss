@@ -6,24 +6,72 @@
 
 @use "common/refactor/common-refactor" as *;
 @use "./profile";
+@use "../ds/typography.scss" as t;
+@use "../ds/_sizes.scss" as *;
+@use "../ds/spacing.scss" as *;
 
 .feedback-form {
+  .fields-row {
+    margin-block-end: $s-32;
+  }
+
   textarea {
+    @include bodyMediumTypography;
     border-radius: $br-8;
-    padding: $br-12;
+    padding: var(--sp-m);
     background-color: var(--color-background-tertiary);
     color: var(--color-foreground-primary);
     border: none;
 
     ::placeholder {
-      color: var(--color-background-disabled);
+      color: var(--input-placeholder-color);
     }
     &:focus {
       outline: $s-1 solid var(--color-accent-primary);
     }
   }
-}
 
-.feedback-button-link {
-  @extend .button-primary;
+  .field-label {
+    @include headlineSmallTypography;
+    height: $sz-32;
+    color: var(--color-foreground-primary);
+    margin-block-end: var(--sp-l);
+  }
+
+  .feedback-button-link {
+    @extend .button-primary;
+    margin-block-end: $s-72;
+  }
+
+  .feedback-title {
+    margin-block-end: var(--sp-xxxl);
+  }
+
+  .field-text {
+    @include bodyMediumTypography;
+  }
+
+  .bottom-margin {
+    margin-block-end: var(--sp-xxxl);
+  }
+
+  .link {
+    @include t.use-typography("headline-small");
+    color: var(--color-accent-tertiary);
+    margin-block-end: var(--sp-s);
+  }
+
+  .download-button {
+    @include t.use-typography("body-small");
+    color: var(--color-foreground-primary);
+    text-transform: lowercase;
+    border: $s-1 solid var(--color-background-quaternary);
+    margin-block-start: var(--sp-s);
+    padding: var(--sp-s);
+    border-radius: $br-8;
+    block-size: $sz-32;
+    display: inline-block;
+    min-inline-size: $sz-160;
+    text-align: center;
+  }
 }
