@@ -8,6 +8,7 @@
   "Feedback form."
   (:require-macros [app.main.style :as stl])
   (:require
+   [app.common.data :as d]
    [app.common.schema :as sm]
    [app.main.data.notifications :as ntf]
    [app.main.refs :as refs]
@@ -20,24 +21,29 @@
    [beicon.v2.core :as rx]
    [rumext.v2 :as mf]))
 
-(defn schema:feedback-form [url-error]
+(def schema:feedback-form
   [:map {:title "FeedbackForm"}
    [:subject [::sm/text {:max 250}]]
    [:type [:string {:max 250}]]
    [:content [::sm/text {:max 5000}]]
-   [:penpot-link [::sm/text {:max 2048 :value (or url-error "") :optional true}]]])
+   [:error-report {:optional true} ::sm/text]
+   [:error-href {:optional true} [::sm/text {:max 2048}]]])
 
 (mf/defc feedback-form
   {::mf/private true}
   [{:keys [report type url-error]}]
   (let [profile    (mf/deref refs/profile)
-        initial    (mf/with-memo [url-error]
-                     {:subject ""
-                      :type (or type "")
-                      :content ""
-                      :penpot-link url-error})
-        form       (fm/use-form :schema (schema:feedback-form url-error) :initial initial)
+        initial    (mf/with-memo [url-error report]
+                     (d/without-nils
+                      {:subject ""
+                       :type (d/nilv type "")
+                       :content ""
+                       :error-href url-error
+                       :error-report report}))
+        form       (fm/use-form :schema schema:feedback-form
+                                :initial initial)
         loading    (mf/use-state false)
+
         report     (wapi/create-blob report "text/plain")
         report-uri (wapi/create-uri report)
 
@@ -78,7 +84,7 @@
                  :on-submit on-submit
                  :form form}
 
-       ;; --- Feedback section
+     ;; --- Feedback section
      [:h2 {:class (stl/css :field-title :feedback-title)} (tr "feedback.title-contact-us")]
      [:p {:class (stl/css :field-text :feedback-title)} (tr "feedback.subtitle")]
 
@@ -105,7 +111,7 @@
      [:div {:class (stl/css :fields-row)}
       [:p {:class (stl/css :field-text)} (tr "feedback.penpot.link")]
       [:& fm/input {:label ""
-                    :name :penpot-link
+                    :name :error-href
                     :placeholder "https://penpot.app/"
                     :show-success? true}]
 

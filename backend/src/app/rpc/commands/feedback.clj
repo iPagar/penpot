@@ -7,6 +7,7 @@
 (ns app.rpc.commands.feedback
   "A general purpose feedback module."
   (:require
+   [app.common.data :as d]
    [app.common.exceptions :as ex]
    [app.common.schema :as sm]
    [app.config :as cf]
@@ -22,16 +23,22 @@
 (def ^:private schema:send-user-feedback
   [:map {:title "send-user-feedback"}
    [:subject [:string {:max 400}]]
-   [:content [:string {:max 2500}]]])
+   [:content [:string {:max 2500}]]
+   [:type :string ]
+   [:error-href {:optional true} :string]
+   [:error-report {:optional true} :string]])
 
 (sv/defmethod ::send-user-feedback
   {::doc/added "1.18"
    ::sm/params schema:send-user-feedback}
   [{:keys [::db/pool]} {:keys [::rpc/profile-id] :as params}]
-  (when-not (contains? cf/flags :user-feedback)
-    (ex/raise :type :restriction
-              :code :feedback-disabled
-              :hint "feedback not enabled"))
+  ;; (when-not (contains? cf/flags :user-feedback)
+  ;;   (ex/raise :type :restriction
+  ;;             :code :feedback-disabled
+  ;;             :hint "feedback not enabled"))
+
+  (app.common.pprint/pprint (d/without-qualified params))
+
 
   (let [profile (profile/get-profile pool profile-id)]
     (send-user-feedback! pool profile params)

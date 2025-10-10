@@ -351,16 +351,19 @@
 (mf/defc internal-error*
   [{:keys [on-reset report] :as props}]
   (let [report-uri (mf/use-ref nil)
-        on-reset (or on-reset #(st/emit! (rt/assign-exception nil)))
+        on-reset   (or on-reset #(st/emit! (rt/assign-exception nil)))
 
         support-contact-click
         (mf/use-fn
+         (mf/deps on-reset report)
          (fn []
+           (js/setTimeout on-reset 0)
            (let [report-id (str "report-" (random-uuid))]
              (.setItem js/localStorage report-id report)
-             (st/emit! (rt/nav :settings-feedback {:type "issue"
-                                                   :report-id report-id
-                                                   :url-error (rt/get-current-href)})))))
+             (st/emit!
+              (rt/nav :settings-feedback {:type "issue"
+                                          :report-id report-id
+                                          :url-error (rt/get-current-href)})))))
 
         on-download
         (mf/use-fn
@@ -439,6 +442,7 @@
                                    :path (get route :path)
                                    :report report
                                    :params params}))))
+
     (case type
       :not-found
       [:> not-found* {}]
