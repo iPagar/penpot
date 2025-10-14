@@ -54,6 +54,7 @@
 - Fix restoring a variant in another file makes it overlap the existing variant [Taiga #12049](https://tree.taiga.io/project/penpot/issue/12049)
 - Fix auto-width changes to fixed when switching variants [Taiga #12172](https://tree.taiga.io/project/penpot/issue/12172)
 - Fix component number has no singular translation string [Taiga #12106](https://tree.taiga.io/project/penpot/issue/12106)
+- Fix drag & drop functionality is swapping instead or reordering [Taiga #12254](https://tree.taiga.io/project/penpot/issue/12254)
 
 
 ## 2.10.1 (Unreleased)
