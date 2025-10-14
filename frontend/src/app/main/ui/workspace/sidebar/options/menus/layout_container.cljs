@@ -60,7 +60,7 @@
                      :vertical-padding
                      :else
                      name)
-        
+
         tokens (mf/with-memo [tokens input-type]
                  (delay
                    (-> (deref tokens)
@@ -1007,11 +1007,11 @@
 
       [:div {:class (stl/css :track-info-value)}
        [:> deprecated-input/numeric-input* {:no-validate true
-                           :value (:value column)
-                           :on-change #(set-column-value type index %)
-                           :placeholder "--"
-                           :min 0
-                           :disabled (= :auto (:type column))}]]
+                                            :value (:value column)
+                                            :on-change #(set-column-value type index %)
+                                            :placeholder "--"
+                                            :min 0
+                                            :disabled (= :auto (:type column))}]]
 
       [:div {:class (stl/css :track-info-unit)}
        [:& select {:class (stl/css :track-info-unit-selector)
@@ -1168,13 +1168,13 @@
         (mf/use-fn
          (mf/deps ids)
          (fn [multiple? type val]
-          (let [val (mth/finite val 0)]
-            (cond
-              ^boolean multiple?
-              (st/emit! (dwsl/update-layout ids {:layout-gap {:row-gap val :column-gap val}}))
+           (let [val (mth/finite val 0)]
+             (cond
+               ^boolean multiple?
+               (st/emit! (dwsl/update-layout ids {:layout-gap {:row-gap val :column-gap val}}))
 
-              (some? type)
-              (st/emit! (dwsl/update-layout ids {:layout-gap {type val}}))))))
+               (some? type)
+               (st/emit! (dwsl/update-layout ids {:layout-gap {type val}}))))))
 
         ;; Padding
         on-padding-type-change
@@ -1392,11 +1392,11 @@
                              :value (:layout-gap values)}]]
           [:div {:class (stl/css :padding-row)}
            [:> padding-section* {:value (:layout-padding values)
-                                :type (:layout-padding-type values)
-                                :shapes shapes
-                                :applied-tokens applied-tokens
-                                :on-type-change on-padding-type-change
-                                :on-change on-padding-change}]]]
+                                 :type (:layout-padding-type values)
+                                 :shapes shapes
+                                 :applied-tokens applied-tokens
+                                 :on-type-change on-padding-type-change
+                                 :on-change on-padding-change}]]]
 
          nil))]))
 
@@ -1593,9 +1593,9 @@
 
      [:div {:class (stl/css :padding-row :padding-section)}
       [:> padding-section* {:value (:layout-padding values)
-                           :type (:layout-padding-type values)
-                           :on-type-change on-padding-type-change
-                           :on-change on-padding-change}]]
+                            :type (:layout-padding-type values)
+                            :on-type-change on-padding-type-change
+                            :on-change on-padding-change}]]
 
      [:div {:class (stl/css :grid-tracks-row)}
       [:& grid-columns-row {:is-column true
