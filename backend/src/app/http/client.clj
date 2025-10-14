@@ -29,14 +29,9 @@
 
 (defn send!
   ([client req] (send! client req {}))
-  ([client req {:keys [response-type sync?] :or {response-type :string sync? false}}]
+  ([client req {:keys [response-type sync?] :or {response-type :string}}]
    (assert (client? client) "expected valid http client")
-   (if sync?
-     (http/send req {:client client :as response-type})
-     (try
-       (http/send-async req {:client client :as response-type})
-       (catch Throwable cause
-         (p/rejected cause))))))
+   (http/send req {:client client :as response-type})))
 
 (defn- resolve-client
   [params]
@@ -56,8 +51,8 @@
   ([cfg-or-client request]
    (let [client  (resolve-client cfg-or-client)
          request (update request :uri str)]
-     (send! client request {:sync? true})))
+     (send! client request {})))
   ([cfg-or-client request options]
    (let [client  (resolve-client cfg-or-client)
          request (update request :uri str)]
-     (send! client request (merge {:sync? true} options)))))
+     (send! client request options))))

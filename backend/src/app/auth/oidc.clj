@@ -55,7 +55,7 @@
 (defn- discover-oidc-config
   [cfg {:keys [base-uri] :as opts}]
   (let [uri (dm/str (u/join base-uri ".well-known/openid-configuration"))
-        rsp (http/req! cfg {:method :get :uri uri} {:sync? true})]
+        rsp (http/req! cfg {:method :get :uri uri})]
     (if (= 200 (:status rsp))
       (let [data      (-> rsp :body json/decode)
             token-uri (get data :token_endpoint)
@@ -69,10 +69,11 @@
                  :user-uri user-uri
                  :jwks-uri jwks-uri)
 
-        {:token-uri token-uri
-         :auth-uri  auth-uri
-         :user-uri  user-uri
-         :jwks-uri jwks-uri})
+        (merge opts
+               {:token-uri token-uri
+                :auth-uri  auth-uri
+                :user-uri  user-uri
+                :jwks-uri jwks-uri}))
       (do
         (l/warn :hint "unable to discover OIDC configuration"
                 :discover-uri uri
@@ -104,7 +105,7 @@
         opts
         (try
           (-> (discover-oidc-config cfg opts)
-              (merge opts {:discover? true}))
+              (with-meta {:discover? true}))
           (catch Throwable cause
             (l/warn :hint "unable to discover OIDC configuration"
                     :cause cause)))))))
@@ -127,7 +128,7 @@
   [cfg {:keys [jwks-uri]}]
   (when jwks-uri
     (try
-      (let [{:keys [status body]} (http/req! cfg {:method :get :uri jwks-uri} {:sync? true})]
+      (let [{:keys [status body]} (http/req! cfg {:method :get :uri jwks-uri})]
         (if (= 200 status)
           (-> body json/decode :keys process-oidc-jwks)
           (do
@@ -150,16 +151,16 @@
       (let [jwks (fetch-oidc-jwks cfg opts)]
         (l/inf :hint "provider initialized"
                :provider "oidc"
-               :method (if (:discover? opts) "discover" "manual")
+               :method (if (-> opts meta :discover?) "discover" "manual")
                :client-id (:client-id opts)
                :client-secret (obfuscate-string (:client-secret opts))
-               :scopes     (str/join "," (:scopes opts))
-               :auth-uri   (:auth-uri opts)
-               :user-uri   (:user-uri opts)
-               :token-uri  (:token-uri opts)
+               :scopes (str/join "," (:scopes opts))
+               :auth-uri (:auth-uri opts)
+               :user-uri (:user-uri opts)
+               :token-uri (:token-uri opts)
                :roles-attr (:roles-attr opts)
-               :roles      (:roles opts)
-               :keys       (str/join "," (map str (keys jwks))))
+               :roles (:roles opts)
+               :keys (str/join "," (map str (keys jwks))))
         (assoc opts :jwks jwks))
       (do
         (l/warn :hint "unable to initialize auth provider, missing configuration" :provider "oidc")
@@ -209,7 +210,7 @@
                     :timeout 6000
                     :method :get}
 
-            {:keys [status body]} (http/req! cfg params {:sync? true})]
+            {:keys [status body]} (http/req! cfg params)]
 
         (when-not (int-in-range? status 200 300)
           (ex/raise :type :internal
@@ -341,7 +342,7 @@
            :grant-type (:grant_type params)
            :redirect-uri (:redirect_uri params))
 
-    (let [{:keys [status body]} (http/req! cfg req {:sync? true})]
+    (let [{:keys [status body]} (http/req! cfg req)]
       (l/trc :hint "access token fetched" :status status :body body)
       (if (= status 200)
         (let [data (json/decode body)
@@ -393,7 +394,7 @@
                   :headers {"Authorization" (str (:token/type tdata) " " (:token/access tdata))}
                   :timeout 6000
                   :method :get}
-        response (http/req! cfg params {:sync? true})]
+        response (http/req! cfg params)]
 
     (l/trc :hint "user info response"
            :status (:status response)
@@ -462,7 +463,7 @@
                (seq (:roles provider)))
 
       (let [expected-roles (into #{} (:roles provider))
-            current-roles  (let [roles-kw (cf/get :oidc-roles-attr "roles")
+            current-roles  (let [roles-kw (get provider :roles-attr "roles")
                                  roles-ph (parse-attr-path provider roles-kw)
                                  roles    (get-in (:props info) roles-ph)]
                              (cond

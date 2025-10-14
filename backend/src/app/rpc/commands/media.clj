@@ -226,7 +226,7 @@
 
     (let [{:keys [body] :as response} (http/req! client
                                                  {:method :get :uri uri}
-                                                 {:response-type :input-stream :sync? true})
+                                                 {:response-type :input-stream})
           {:keys [size mtype]} (parse-and-validate response)
           path    (tmp/tempfile :prefix "penpot.media.download.")
           written (io/write* path body :size size)]
