@@ -299,7 +299,7 @@
   (let [public (u/uri (cf/get :public-uri))]
     (str (assoc public :path (str "/api/auth/oauth/" (:name provider) "/callback")))))
 
-(defn- build-auth-uri
+(defn- build-auth-redirect-uri
   [{:keys [::provider] :as cfg} state]
   (let [params {:client_id (:client-id provider)
                 :redirect_uri (build-redirect-uri cfg)
@@ -612,6 +612,17 @@
         nil
         session-id))))
 
+;; (defn prepare-auth-redirect-uri
+;;   [cfg & {:keys [external-session-id invitation-token props] :as params}]
+;;   (let [params {:iss :oauth
+;;                 :invitation-token invitation-token
+;;                 :external-session-id external-session-id
+;;                 :props props
+;;                 :exp (ct/in-future "4h")}
+;;         token  (tokens/generate cfg (d/without-nils params))]
+
+;;     (build-auth-uri cfg token)))
+
 (defn- auth-handler
   [cfg {:keys [params] :as request}]
   (let [props  (audit/extract-utm-params params)
@@ -622,7 +633,7 @@
                 :props props
                 :exp (ct/in-future "4h")}
         state  (tokens/generate cfg (d/without-nils params))
-        uri    (build-auth-uri cfg state)]
+        uri    (build-auth-redirect-uri cfg state)]
     {::yres/status 200
      ::yres/body {:redirect-uri uri}}))
 
