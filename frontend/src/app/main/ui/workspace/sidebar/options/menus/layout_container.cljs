@@ -558,8 +558,8 @@
           :placeholder "--"
           :aria-label (tr "workspace.layout_grid.editor.padding.top")
           :data-attr "p1"
-          :on-change on-change'
-          :on-focus on-focus
+          :on-change on-p1-change
+          :on-focus on-focus-p1
           :on-blur on-padding-blur
           :min 0
           :value p1}]])
@@ -586,8 +586,8 @@
           :placeholder "--"
           :aria-label (tr "workspace.layout_grid.editor.padding.right")
           :data-attr "p2"
-          :on-change on-change'
-          :on-focus on-focus
+          :on-change on-p2-change
+          :on-focus on-focus-p2
           :on-blur on-padding-blur
           :min 0
           :value p2}]])
@@ -614,8 +614,8 @@
           :placeholder "--"
           :aria-label (tr "workspace.layout_grid.editor.padding.bottom")
           :data-attr "p3"
-          :on-change on-change'
-          :on-focus on-focus
+          :on-change on-p3-change
+          :on-focus on-focus-p3
           :on-blur on-padding-blur
           :min 0
           :value p3}]])
@@ -642,8 +642,8 @@
           :placeholder "--"
           :aria-label (tr "workspace.layout_grid.editor.padding.left")
           :data-attr "p4"
-          :on-change on-change'
-          :on-focus on-focus
+          :on-change on-p4-change
+          :on-focus on-focus-p4
           :on-blur on-padding-blur
           :min 0
           :value p4}]])]))
@@ -693,10 +693,8 @@
   (st/emit! (udw/set-gap-selected value)))
 
 (defn- on-gap-focus
-  [type event]
-  (select-gap! type)
-  ;; (dom/select-target event)
-  )
+  [type]
+  (select-gap! type))
 
 (defn- on-gap-blur
   [_event]
@@ -748,10 +746,10 @@
         (mf/use-fn (mf/deps on-change') #(on-change' % :column-gap))
 
         on-focus-row-gap
-        (mf/use-fn (mf/deps on-gap-focus) #(on-gap-focus :row-gap %))
+        (mf/use-fn (mf/deps on-gap-focus) #(on-gap-focus :row-gap))
 
         on-focus-column-gap
-        (mf/use-fn (mf/deps on-gap-focus) #(on-gap-focus :column-gap %))]
+        (mf/use-fn (mf/deps on-gap-focus) #(on-gap-focus :column-gap))]
 
     (mf/with-effect []
       ;; on destroy component
