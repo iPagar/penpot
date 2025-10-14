@@ -194,11 +194,7 @@ impl TextContent {
     }
 
     pub fn width(&self) -> f32 {
-        if self.grow_type() == GrowType::AutoWidth {
-            self.size.width
-        } else {
-            self.bounds.width()
-        }
+        self.size.width
     }
 
     pub fn grow_type(&self) -> GrowType {
@@ -327,6 +323,18 @@ impl TextContent {
         TextContentLayoutResult(paragraph_builders, paragraphs, size)
     }
 
+    fn get_height(&self, width: f32) -> f32 {
+        let mut paragraph_builders = self.paragraph_builder_group_from_text(None);
+        let paragraphs =
+            self.build_paragraphs_from_paragraph_builders(&mut paragraph_builders, width);
+        paragraphs
+            .iter()
+            .flatten()
+            .fold(0.0, |auto_height, paragraph| {
+                auto_height + paragraph.height()
+            })
+    }
+
     /// Performs a Fixed text layout.
     fn text_layout_fixed(&self) -> TextContentLayoutResult {
         let width = self.width();
@@ -348,7 +356,10 @@ impl TextContent {
     }
 
     pub fn update_layout(&mut self, selrect: Rect) -> TextContentSize {
-        self.size.set_size(selrect.width(), selrect.height());
+        let default_width = selrect.width();
+        let default_height = self.get_height(default_width);
+        self.size.set_size(default_width, default_height);
+
         match self.grow_type() {
             GrowType::AutoHeight => {
                 let result = self.text_layout_auto_height();
